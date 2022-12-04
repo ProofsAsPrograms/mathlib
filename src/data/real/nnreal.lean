@@ -3,12 +3,13 @@ Copyright (c) 2018 Johan Commelin. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johan Commelin
 -/
-import order.conditionally_complete_lattice.group
 import algebra.algebra.basic
+import algebra.indicator_function
+import algebra.big_operators.order
 import algebra.order.nonneg.field
 import algebra.order.field.canonical.basic
 import data.real.pointwise
-import tactic.positivity
+import order.conditionally_complete_lattice.group
 
 /-!
 # Nonnegative real numbers
@@ -572,9 +573,9 @@ end sub
 
 section inv
 
-lemma sum_div {ι} (s : finset ι) (f : ι → ℝ≥0) (b : ℝ≥0) :
-  (∑ i in s, f i) / b = ∑ i in s, (f i / b) :=
-finset.sum_div
+-- lemma sum_div {ι} (s : finset ι) (f : ι → ℝ≥0) (b : ℝ≥0) :
+--   (∑ i in s, f i) / b = ∑ i in s, (f i / b) :=
+-- finset.sum_div
 
 @[simp] lemma inv_pos {r : ℝ≥0} : 0 < r⁻¹ ↔ 0 < r := inv_pos
 

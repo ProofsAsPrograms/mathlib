@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 import algebra.ring.ulift
-import algebra.module.equiv
+import algebra.module.basic
 
 /-!
 # `ulift` instances for module and multiplicative actions
@@ -125,15 +125,15 @@ instance module' [semiring R] [add_comm_monoid M] [module R M] : module R (ulift
 { add_smul := λ _ _ _, ulift.ext _ _ $ add_smul _ _ _,
   ..ulift.smul_with_zero' }
 
-/--
-The `R`-linear equivalence between `ulift M` and `M`.
--/
-def module_equiv [semiring R] [add_comm_monoid M] [module R M] : ulift M ≃ₗ[R] M :=
-{ to_fun := ulift.down,
-  inv_fun := ulift.up,
-  map_smul' := λ r x, rfl,
-  map_add' := λ x y, rfl,
-  left_inv := by tidy,
-  right_inv := by tidy, }
+-- /--
+-- The `R`-linear equivalence between `ulift M` and `M`.
+-- -/
+-- def module_equiv [semiring R] [add_comm_monoid M] [module R M] : ulift M ≃ₗ[R] M :=
+-- { to_fun := ulift.down,
+--   inv_fun := ulift.up,
+--   map_smul' := λ r x, rfl,
+--   map_add' := λ x y, rfl,
+--   left_inv := by tidy,
+--   right_inv := by tidy, }
 
 end ulift

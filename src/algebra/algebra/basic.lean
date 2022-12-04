@@ -3,14 +3,11 @@ Copyright (c) 2018 Kenny Lau. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kenny Lau, Yury Kudryashov
 -/
-import algebra.module.basic
+import algebra.module.equiv
+import algebra.module.prod
 import algebra.module.ulift
-import algebra.ne_zero
-import algebra.ring.aut
-import algebra.ring.ulift
-import algebra.char_zero.lemmas
-import linear_algebra.span
-import tactic.abel
+import algebra.punit_instances
+import algebra.ring.prod
 
 /-!
 # Algebras over commutative semirings
@@ -435,47 +432,47 @@ variables {R A B}
 
 end prod
 
-/-- Algebra over a subsemiring. This builds upon `subsemiring.module`. -/
-instance of_subsemiring (S : subsemiring R) : algebra S A :=
-{ smul := (•),
-  commutes' := λ r x, algebra.commutes r x,
-  smul_def' := λ r x, algebra.smul_def r x,
-  .. (algebra_map R A).comp S.subtype }
+-- /-- Algebra over a subsemiring. This builds upon `subsemiring.module`. -/
+-- instance of_subsemiring (S : subsemiring R) : algebra S A :=
+-- { smul := (•),
+--   commutes' := λ r x, algebra.commutes r x,
+--   smul_def' := λ r x, algebra.smul_def r x,
+--   .. (algebra_map R A).comp S.subtype }
 
-lemma algebra_map_of_subsemiring (S : subsemiring R) :
-  (algebra_map S R : S →+* R) = subsemiring.subtype S := rfl
+-- lemma algebra_map_of_subsemiring (S : subsemiring R) :
+--   (algebra_map S R : S →+* R) = subsemiring.subtype S := rfl
 
-lemma coe_algebra_map_of_subsemiring (S : subsemiring R) :
-  (algebra_map S R : S → R) = subtype.val := rfl
+-- lemma coe_algebra_map_of_subsemiring (S : subsemiring R) :
+--   (algebra_map S R : S → R) = subtype.val := rfl
 
-lemma algebra_map_of_subsemiring_apply (S : subsemiring R) (x : S) :
-  algebra_map S R x = x := rfl
+-- lemma algebra_map_of_subsemiring_apply (S : subsemiring R) (x : S) :
+--   algebra_map S R x = x := rfl
 
-/-- Algebra over a subring. This builds upon `subring.module`. -/
-instance of_subring {R A : Type*} [comm_ring R] [ring A] [algebra R A]
-  (S : subring R) : algebra S A :=
-{ smul := (•),
-  .. algebra.of_subsemiring S.to_subsemiring,
-  .. (algebra_map R A).comp S.subtype }
+-- /-- Algebra over a subring. This builds upon `subring.module`. -/
+-- instance of_subring {R A : Type*} [comm_ring R] [ring A] [algebra R A]
+--   (S : subring R) : algebra S A :=
+-- { smul := (•),
+--   .. algebra.of_subsemiring S.to_subsemiring,
+--   .. (algebra_map R A).comp S.subtype }
 
-lemma algebra_map_of_subring {R : Type*} [comm_ring R] (S : subring R) :
-  (algebra_map S R : S →+* R) = subring.subtype S := rfl
+-- lemma algebra_map_of_subring {R : Type*} [comm_ring R] (S : subring R) :
+--   (algebra_map S R : S →+* R) = subring.subtype S := rfl
 
-lemma coe_algebra_map_of_subring {R : Type*} [comm_ring R] (S : subring R) :
-  (algebra_map S R : S → R) = subtype.val := rfl
+-- lemma coe_algebra_map_of_subring {R : Type*} [comm_ring R] (S : subring R) :
+--   (algebra_map S R : S → R) = subtype.val := rfl
 
-lemma algebra_map_of_subring_apply {R : Type*} [comm_ring R] (S : subring R) (x : S) :
-  algebra_map S R x = x := rfl
+-- lemma algebra_map_of_subring_apply {R : Type*} [comm_ring R] (S : subring R) (x : S) :
+--   algebra_map S R x = x := rfl
 
-/-- Explicit characterization of the submonoid map in the case of an algebra.
-`S` is made explicit to help with type inference -/
-def algebra_map_submonoid (S : Type*) [semiring S] [algebra R S]
-  (M : submonoid R) : submonoid S :=
-M.map (algebra_map R S)
+-- /-- Explicit characterization of the submonoid map in the case of an algebra.
+-- `S` is made explicit to help with type inference -/
+-- def algebra_map_submonoid (S : Type*) [semiring S] [algebra R S]
+--   (M : submonoid R) : submonoid S :=
+-- M.map (algebra_map R S)
 
-lemma mem_algebra_map_submonoid_of_mem {S : Type*} [semiring S] [algebra R S] {M : submonoid R}
-  (x : M) : (algebra_map R S x) ∈ algebra_map_submonoid S M :=
-set.mem_image_of_mem (algebra_map R S) x.2
+-- lemma mem_algebra_map_submonoid_of_mem {S : Type*} [semiring S] [algebra R S] {M : submonoid R}
+--   (x : M) : (algebra_map R S x) ∈ algebra_map_submonoid S M :=
+-- set.mem_image_of_mem (algebra_map R S) x.2
 
 end semiring
 
@@ -540,10 +537,10 @@ lemma algebra_map_End_eq_smul_id (a : R) :
 @[simp] lemma algebra_map_End_apply (a : R) (m : M) :
   (algebra_map R (End R M)) a m = a • m := rfl
 
-@[simp] lemma ker_algebra_map_End (K : Type u) (V : Type v)
-  [field K] [add_comm_group V] [module K V] (a : K) (ha : a ≠ 0) :
-  ((algebra_map K (End K V)) a).ker = ⊥ :=
-linear_map.ker_smul _ _ ha
+-- @[simp] lemma ker_algebra_map_End (K : Type u) (V : Type v)
+--   [field K] [add_comm_group V] [module K V] (a : K) (ha : a ≠ 0) :
+--   ((algebra_map K (End K V)) a).ker = ⊥ :=
+-- linear_map.ker_smul _ _ ha
 
 section
 
@@ -741,8 +738,8 @@ protected lemma map_pow (x : A) (n : ℕ) : φ (x ^ n) = (φ x) ^ n := map_pow _
 protected lemma map_sum {ι : Type*} (f : ι → A) (s : finset ι) :
   φ (∑ x in s, f x) = ∑ x in s, φ (f x) := map_sum _ _ _
 
-protected lemma map_finsupp_sum {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A) :
-  φ (f.sum g) = f.sum (λ i a, φ (g i a)) := map_finsupp_sum _ _ _
+-- protected lemma map_finsupp_sum {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A) :
+--   φ (f.sum g) = f.sum (λ i a, φ (g i a)) := map_finsupp_sum _ _ _
 
 protected lemma map_bit0 (x) : φ (bit0 x) = bit0 (φ x) := map_bit0 _ _
 protected lemma map_bit1 (x) : φ (bit1 x) = bit1 (φ x) := map_bit1 _ _
@@ -909,8 +906,8 @@ protected lemma map_multiset_prod (s : multiset A) :
 protected lemma map_prod {ι : Type*} (f : ι → A) (s : finset ι) :
   φ (∏ x in s, f x) = ∏ x in s, φ (f x) := map_prod _ _ _
 
-protected lemma map_finsupp_prod {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A) :
-  φ (f.prod g) = f.prod (λ i a, φ (g i a)) := map_finsupp_prod _ _ _
+-- protected lemma map_finsupp_prod {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A) :
+--   φ (f.prod g) = f.prod (λ i a, φ (g i a)) := map_finsupp_prod _ _ _
 
 end comm_semiring
 
@@ -1061,9 +1058,9 @@ lemma map_sum {ι : Type*} (f : ι → A₁) (s : finset ι) :
   e (∑ x in s, f x) = ∑ x in s, e (f x) :=
 e.to_add_equiv.map_sum f s
 
-lemma map_finsupp_sum {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A₁) :
-  e (f.sum g) = f.sum (λ i b, e (g i b)) :=
-e.map_sum _ _
+-- lemma map_finsupp_sum {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A₁) :
+--   e (f.sum g) = f.sum (λ i b, e (g i b)) :=
+-- e.map_sum _ _
 
 /-- Interpret an algebra equivalence as an algebra homomorphism.
 
@@ -1389,9 +1386,9 @@ lemma map_prod {ι : Type*} (f : ι → A₁) (s : finset ι) :
   e (∏ x in s, f x) = ∏ x in s, e (f x) :=
 map_prod _ f s
 
-lemma map_finsupp_prod {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A₁) :
-  e (f.prod g) = f.prod (λ i a, e (g i a)) :=
-map_finsupp_prod _ f g
+-- lemma map_finsupp_prod {α : Type*} [has_zero α] {ι : Type*} (f : ι →₀ α) (g : ι → α → A₁) :
+--   e (f.prod g) = f.prod (λ i a, e (g i a)) :=
+-- map_finsupp_prod _ f g
 
 end comm_semiring
 
@@ -1813,43 +1810,43 @@ end linear_map
 
 end is_scalar_tower
 
-/-! TODO: The following lemmas no longer involve `algebra` at all, and could be moved closer
-to `algebra/module/submodule.lean`. Currently this is tricky because `ker`, `range`, `⊤`, and `⊥`
-are all defined in `linear_algebra/basic.lean`. -/
-section module
-open module
+-- /-! TODO: The following lemmas no longer involve `algebra` at all, and could be moved closer
+-- to `algebra/module/submodule.lean`. Currently this is tricky because `ker`, `range`, `⊤`, and `⊥`
+-- are all defined in `linear_algebra/basic.lean`. -/
+-- section module
+-- open module
 
-variables (R S M N : Type*) [semiring R] [semiring S] [has_smul R S]
-variables [add_comm_monoid M] [module R M] [module S M] [is_scalar_tower R S M]
-variables [add_comm_monoid N] [module R N] [module S N] [is_scalar_tower R S N]
+-- variables (R S M N : Type*) [semiring R] [semiring S] [has_smul R S]
+-- variables [add_comm_monoid M] [module R M] [module S M] [is_scalar_tower R S M]
+-- variables [add_comm_monoid N] [module R N] [module S N] [is_scalar_tower R S N]
 
-variables {S M N}
+-- variables {S M N}
 
-@[simp]
-lemma linear_map.ker_restrict_scalars (f : M →ₗ[S] N) :
-  (f.restrict_scalars R).ker = f.ker.restrict_scalars R :=
-rfl
+-- @[simp]
+-- lemma linear_map.ker_restrict_scalars (f : M →ₗ[S] N) :
+--   (f.restrict_scalars R).ker = f.ker.restrict_scalars R :=
+-- rfl
 
-end module
+-- end module
 
-namespace submodule
+-- namespace submodule
 
-variables (R A M : Type*)
-variables [comm_semiring R] [semiring A] [algebra R A] [add_comm_monoid M]
-variables [module R M] [module A M] [is_scalar_tower R A M]
+-- variables (R A M : Type*)
+-- variables [comm_semiring R] [semiring A] [algebra R A] [add_comm_monoid M]
+-- variables [module R M] [module A M] [is_scalar_tower R A M]
 
-/-- If `A` is an `R`-algebra such that the induced morhpsim `R →+* A` is surjective, then the
-`R`-module generated by a set `X` equals the `A`-module generated by `X`. -/
-lemma span_eq_restrict_scalars (X : set M) (hsur : function.surjective (algebra_map R A)) :
-  span R X = restrict_scalars R (span A X) :=
-begin
-  apply (span_le_restrict_scalars R A X).antisymm (λ m hm, _),
-  refine span_induction hm subset_span (zero_mem _) (λ _ _, add_mem) (λ a m hm, _),
-  obtain ⟨r, rfl⟩ := hsur a,
-  simpa [algebra_map_smul] using smul_mem _ r hm
-end
+-- /-- If `A` is an `R`-algebra such that the induced morhpsim `R →+* A` is surjective, then the
+-- `R`-module generated by a set `X` equals the `A`-module generated by `X`. -/
+-- lemma span_eq_restrict_scalars (X : set M) (hsur : function.surjective (algebra_map R A)) :
+--   span R X = restrict_scalars R (span A X) :=
+-- begin
+--   apply (span_le_restrict_scalars R A X).antisymm (λ m hm, _),
+--   refine span_induction hm subset_span (zero_mem _) (λ _ _, add_mem) (λ a m hm, _),
+--   obtain ⟨r, rfl⟩ := hsur a,
+--   simpa [algebra_map_smul] using smul_mem _ r hm
+-- end
 
-end submodule
+-- end submodule
 
 namespace alg_hom
 
