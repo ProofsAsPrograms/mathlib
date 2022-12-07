@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison, Shing Tak Lam
 -/
 
+import topology.algebra.order.group
 import topology.algebra.order.proj_Icc
 import topology.continuous_function.basic
 
