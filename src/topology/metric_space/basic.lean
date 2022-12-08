@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Robert Y. Lewis, Johannes Hölzl, Mario Carneiro, Sébas
 
 import data.set.pointwise.interval
 import topology.algebra.order.compact
-import topology.algebra.order.group
 import topology.metric_space.emetric_space
 import topology.bornology.constructions
 
