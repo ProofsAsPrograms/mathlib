@@ -34,7 +34,7 @@ section map
 /-- The functorial action of a function on a `pmf`. -/
 def map (f : α → β) (p : pmf α) : pmf β := bind p (pure ∘ f)
 
-variables (f : α → β) (p : pmf α) (b : β)
+variables (f : α → β) (g : β → γ) (p : pmf α) (q : α → pmf β) (a : α) (b : β)
 
 lemma monad_map_eq_map {α β : Type*} (f : α → β) (p : pmf α) : f <$> p = p.map f := rfl
 
@@ -47,13 +47,19 @@ lemma mem_support_map_iff : b ∈ (map f p).support ↔ ∃ a ∈ p.support, f a
 
 lemma bind_pure_comp : bind p (pure ∘ f) = map f p := rfl
 
-lemma map_id : map id p = p := by simp [map]
+lemma map_id : p.map id = p := by simp [map]
 
-lemma map_comp (g : β → γ) : (p.map f).map g = p.map (g ∘ f) :=
-by simp [map]
+lemma map_const : p.map (λ _, b) = pure b :=
+pmf.ext (λ x, by by_cases hx : x = b; simp only [map_apply, pure_apply, hx,
+  eq_self_iff_true, if_true, if_false, tsum_coe, tsum_zero])
 
-lemma pure_map (a : α) : (pure a).map f = pure (f a) :=
-by simp [map]
+lemma map_comp : (p.map f).map g = p.map (g ∘ f) := by simp [map]
+
+@[simp] lemma map_pure : (pure a).map f = pure (f a) := pure_bind _ _
+
+lemma map_bind : (p.bind q).map g = p.bind ((map g) ∘ q) := bind_bind p q _
+
+lemma bind_map (q : β → pmf γ) : (p.map f).bind q = p.bind (q ∘ f) := by simp [map]
 
 section measure
 

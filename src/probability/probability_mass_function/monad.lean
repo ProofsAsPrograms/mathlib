@@ -70,7 +70,7 @@ def bind (p : pmf α) (f : α → pmf β) : pmf β :=
 ⟨λ b, ∑' a, p a * f a b, ennreal.summable.has_sum_iff.2 (ennreal.tsum_comm.trans $
   by simp only [ennreal.tsum_mul_left, tsum_coe, mul_one])⟩
 
-variables (p : pmf α) (f : α → pmf β) (g : β → pmf γ)
+variables (p q : pmf α) (f : α → pmf β) (g : β → pmf γ)
 
 @[simp] lemma bind_apply (b : β) : p.bind f b = ∑'a, p a * f a b := rfl
 
@@ -79,6 +79,9 @@ set.ext (λ b, by simp [mem_support_iff, ennreal.tsum_eq_zero, not_or_distrib])
 
 lemma mem_support_bind_iff (b : β) : b ∈ (p.bind f).support ↔ ∃ a ∈ p.support, b ∈ (f a).support :=
 by simp only [support_bind, set.mem_set_of_eq]
+
+@[simp] lemma bind_const : p.bind (λ _, q) = q :=
+pmf.ext (λ x, by rw [pmf.bind_apply, ennreal.tsum_mul_right, pmf.tsum_coe, one_mul])
 
 @[simp] lemma pure_bind (a : α) (f : α → pmf β) : (pure a).bind f = f a :=
 have ∀ b a', ite (a' = a) 1 0 * f a' b = ite (a' = a) (f a b) 0, from

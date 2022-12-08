@@ -138,8 +138,10 @@ begin
     exact λ a ha, (p.apply_eq_zero_iff a).2 $ set.not_mem_subset h ha }
 end
 
-@[simp]
-lemma to_outer_measure_apply_inter_support :
+@[simp] lemma to_outer_measure_apply_support : p.to_outer_measure p.support = 1 :=
+(p.to_outer_measure_apply_eq_one_iff _).2 subset_rfl
+
+@[simp] lemma to_outer_measure_apply_inter_support :
   p.to_outer_measure (s ∩ p.support) = p.to_outer_measure s :=
 by simp only [to_outer_measure_apply, pmf.support, set.indicator_inter_support]
 
@@ -147,6 +149,12 @@ by simp only [to_outer_measure_apply, pmf.support, set.indicator_inter_support]
 lemma to_outer_measure_mono {s t : set α} (h : s ∩ p.support ⊆ t) :
   p.to_outer_measure s ≤ p.to_outer_measure t :=
 le_trans (le_of_eq (to_outer_measure_apply_inter_support p s).symm) (p.to_outer_measure.mono h)
+
+lemma to_outer_measure_apply_le_one : p.to_outer_measure s ≤ 1 :=
+le_of_le_of_eq (p.to_outer_measure_mono (s.inter_subset_right _)) p.to_outer_measure_apply_support
+
+lemma to_outer_measure_apply_ne_top : p.to_outer_measure s ≠ ∞ :=
+ne_of_lt (lt_of_le_of_lt (p.to_outer_measure_apply_le_one s) ennreal.one_lt_top)
 
 lemma to_outer_measure_apply_eq_of_inter_support_eq {s t : set α}
   (h : s ∩ p.support = t ∩ p.support) : p.to_outer_measure s = p.to_outer_measure t :=
@@ -203,6 +211,9 @@ lemma to_measure_apply_eq_one_iff (hs : measurable_set s) : p.to_measure s = 1 �
 (p.to_measure_apply_eq_to_outer_measure_apply s hs : p.to_measure s = p.to_outer_measure s).symm
   ▸ (p.to_outer_measure_apply_eq_one_iff s)
 
+@[simp] lemma to_measure_apply_support (h : measurable_set p.support) :
+  p.to_measure p.support = 1 := (p.to_measure_apply_eq_one_iff _ h).2 subset_rfl
+
 @[simp]
 lemma to_measure_apply_inter_support (hs : measurable_set s) (hp : measurable_set p.support) :
   p.to_measure (s ∩ p.support) = p.to_measure s :=
@@ -213,6 +224,13 @@ lemma to_measure_mono {s t : set α} (hs : measurable_set s) (ht : measurable_se
   (h : s ∩ p.support ⊆ t) : p.to_measure s ≤ p.to_measure t :=
 by simpa only [p.to_measure_apply_eq_to_outer_measure_apply, hs, ht]
   using to_outer_measure_mono p h
+
+lemma to_measure_apply_le_one (hs : measurable_set s) : p.to_measure s ≤ 1 :=
+le_of_eq_of_le (to_measure_apply_eq_to_outer_measure_apply _ _ hs)
+  (p.to_outer_measure_apply_le_one s)
+
+lemma to_measure_apply_ne_top (hs : measurable_set s) : p.to_measure s ≠ ∞ :=
+ne_of_lt (lt_of_le_of_lt (p.to_measure_apply_le_one s hs) ennreal.one_lt_top)
 
 lemma to_measure_apply_eq_of_inter_support_eq {s t : set α} (hs : measurable_set s)
   (ht : measurable_set t) (h : s ∩ p.support = t ∩ p.support) : p.to_measure s = p.to_measure t :=
