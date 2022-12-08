@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Benjamin Davidson, Devon Tuma, Eric Rodriguez, Oliver Nash
 -/
 
-import tactic.positivity
+import data.set.pointwise.interval
 import topology.algebra.order.group
 import topology.algebra.field
 
