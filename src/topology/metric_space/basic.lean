@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Robert Y. Lewis, Johannes Hölzl, Mario Carneiro, Sébastien Gouëzel
 -/
 
-import tactic.positivity
+import data.set.pointwise.interval
 import topology.algebra.order.compact
+import topology.algebra.order.group
 import topology.metric_space.emetric_space
 import topology.bornology.constructions
 
