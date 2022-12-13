@@ -56,6 +56,20 @@ Mittag-Leffler, surjective, eventual range, inverse system,
 
 universes u v w
 
+
+-- Two lemmas that should go into order.directed
+lemma directed_on_range {α β} {r : α → α → Prop} {f : β → α} :
+  directed r f ↔ directed_on r (set.range f) :=
+by simp_rw [directed, directed_on, set.forall_range_iff, set.exists_range_iff]
+
+--⟨by { rintro h _ ⟨x, rfl⟩ _ ⟨y, rfl⟩, obtain ⟨z, hx, hy⟩ := h x y, exact ⟨_, ⟨z, rfl⟩, hx, hy⟩ },
+--  λ h x y, by { obtain ⟨_, ⟨z, rfl⟩, hx, hy⟩ := h _ ⟨x, rfl⟩ _ ⟨y, rfl⟩, exact ⟨z, hx, hy⟩ }⟩
+
+private lemma directed_on.is_bot_of_is_min {J : Type u} {s : set J} [preorder J]
+  (h : directed_on (≥) s) (m ∈ s) (min : ∀ (a ∈ s), a ≤ m → m ≤ a) : ∀ a ∈ s, m ≤ a :=
+λ a as, let ⟨x, xs, xm, xa⟩ := h m H a as in (min x xs xm).trans xa
+-- this is very similar to `is_min.is_bot`, so I changed the hypothesis `min` to match `is_min`.
+
 namespace category_theory
 namespace functor
 
@@ -75,92 +89,65 @@ in other words (see `is_mittag_leffler_iff_eventual_range`), the eventual range 
 by some `f : i ⟶ j`.
 -/
 def is_mittag_leffler
-  {J : Type u} [category J] (F : J ⥤ Type v) :=
+  {J : Type u} [category J] (F : J ⥤ Type v) : Prop :=
 ∀ (j : J), ∃ (i) (f : i ⟶ j), ∀ (k) (g : k ⟶ j), set.range (F.map f) ⊆ set.range (F.map g)
+--might consider ∀ j : J, ∃ i (f : i ⟶ j), ∀ k (g : k ⟶ j) (x : F.obj i), ∃ y : F.obj k, F.map g y = F.map f x
 
 lemma is_mittag_leffler_iff_eventual_range
   {J : Type u} [category J] (F : J ⥤ Type v) :
   F.is_mittag_leffler ↔ ∀ (j : J), ∃ (i) (f : i ⟶ j), F.eventual_range j = set.range (F.map f) :=
-begin
-  refine forall_congr (λ j, exists_congr $ λ i, exists_congr $ λ f, _),
-  split,
-  { rintro h, apply subset_antisymm,
-    { apply set.Inter₂_subset, },
-    { apply set.subset_Inter₂,
-      exact λ k g, h k g, }, },
-  { rintro h k g, rw h.symm,
-    apply set.Inter₂_subset, },
-end
+forall_congr $ λ j, exists₂_congr $ λ i f,
+  ⟨λ h, (set.Inter₂_subset _ _).antisymm $ set.subset_Inter₂ h, λ h, h ▸ set.Inter₂_subset⟩
 
 lemma eventual_range_eq_range_precomp
   {J : Type u} [category J] (F : J ⥤ Type v)
   {i j k : J} (f : i ⟶ j) (g : j ⟶ k) (h : F.eventual_range k = set.range (F.map g)) :
-  F.eventual_range k = (set.range (F.map $ f ≫ g)) :=
+  F.eventual_range k = set.range (F.map $ f ≫ g) :=
 begin
   apply subset_antisymm,
   { apply set.Inter₂_subset, },
-  { simp only [h, types_comp, functor.map_comp], apply set.range_comp_subset_range, }
+  { rw [h, F.map_comp], apply set.range_comp_subset_range, }
 end
 
 lemma is_mittag_leffler_of_surjective
-  {J : Type u} [category J] (F : J ⥤ Type v) :
-  (∀ (i j : J) (f : i ⟶ j), (F.map f).surjective) → F.is_mittag_leffler :=
-begin
-  rintro h j,
-  use [j, 𝟙 j],
-  rintro k g,
-  refine subset_of_eq _,
-  simp only [map_id, types_id, set.range_id],
-  exact (set.range_iff_surjective.mpr $ h k j g).symm,
-end
+  {J : Type u} [category J] (F : J ⥤ Type v)
+  (h : ∀ (i j : J) (f : i ⟶ j), (F.map f).surjective) : F.is_mittag_leffler :=
+λ j, ⟨j, 𝟙 j, λ k g, by rw [map_id, types_id, set.range_id, (h k j g).range_eq]⟩
 
-/--
-TODO: where does this go?
--/
 lemma _root_.category_theory.is_cofiltered.cone_over_cospan
-  {J : Type u} [category J] [is_cofiltered J] {i j j' : J} (f : j ⟶ i) (f' : j' ⟶ i)  :
+  {J : Type u} [category J] [is_cofiltered_or_empty J] {i j j' : J} (f : j ⟶ i) (f' : j' ⟶ i) :
   ∃ (k : J) (g : k ⟶ j) (g' : k ⟶ j'), g ≫ f = g' ≫ f' :=
-begin
-  let h := is_cofiltered.min_to_left j j',
-  let h' := is_cofiltered.min_to_right j j',
-  let G := is_cofiltered.eq_hom (h ≫ f) (h' ≫ f'),
-  refine ⟨_, G ≫ h, G ≫ h', _⟩,
-  simp only [category.assoc, is_cofiltered.eq_condition],
-end
+-- This is shorter:
+let ⟨k', h, h', _⟩ := is_cofiltered_or_empty.cocone_objs j j',
+    ⟨k, G, he⟩ := is_cofiltered_or_empty.cocone_maps (h ≫ f) (h' ≫ f') in
+⟨k, G ≫ h, G ≫ h', by simpa only [category.assoc]⟩
+-- This should surely go into category_theory.filtered; I don't understand why most results there
+-- are stated with `is_cofiltered` rather than `is_cofiltered_or_empty` though. Maybe because the former is shorter?
 
-lemma ranges_directed_of_is_cofiltered
+lemma range_directed_of_is_cofiltered
   {J : Type u} [category J] [is_cofiltered J] (F : J ⥤ Type v) (j : J) :
-  directed_on (⊇) (set.range (λ ( f : Σ' (i : J), i ⟶ j), set.range (F.map f.2))) :=
+  directed (⊇) (λ f : Σ' i, i ⟶ j, set.range (F.map f.2)) :=
 begin
-  rintros _ ⟨⟨i,ij⟩,rfl⟩ _ ⟨⟨k,kj⟩,rfl⟩,
+  rintros ⟨i, ij⟩ ⟨k, kj⟩,
   obtain ⟨l, li, lk, e⟩ := category_theory.is_cofiltered.cone_over_cospan ij kj,
-  refine ⟨set.range (F.map $ li ≫ ij), _⟩,
-  rw [set.mem_range, exists_prop],
-  refine ⟨⟨⟨l, li ≫ ij⟩, rfl⟩, ⟨_, _⟩⟩,
-  rotate, rw e,
-  all_goals
-  { simp_rw [functor.map_comp, types_comp],
-    apply set.range_comp_subset_range, },
+  refine ⟨⟨l, li ≫ ij⟩, _, _⟩, swap 2, rw e,
+  all_goals { simp_rw F.map_comp, apply set.range_comp_subset_range, },
 end
-
-/--
-TODO: where does this go?
--/
-private lemma directed_on_min {J : Type u} {s : set J} [preorder J] (h : directed_on (≥) s)
-  (m ∈ s) (min : ∀ (a ∈ s), a ≤ m → a = m) : ∀ a ∈ s, m ≤ a :=
-λ a as, let ⟨x, xs, xm, xa⟩ := h m H a as in (min x xs xm) ▸ xa
 
 lemma is_mittag_leffler_of_exists_finite_range
   {J : Type u} [category.{w} J] [is_cofiltered J] (F : J ⥤ Type v)
-  (h : ∀ (j : J), ∃ i (f : i ⟶ j), (set.range (F.map f)).finite ) :
+  (h : ∀ (j : J), ∃ i (f : i ⟶ j), (set.range (F.map f)).finite) :
   F.is_mittag_leffler :=
 begin
   rintro j,
+-- trying to use `well_founded.has_min`
   suffices : ∃ (f : Σ' i, i ⟶ j), ∀ (f' : Σ' i, i ⟶ j),
                set.range (F.map f'.2) ≤ set.range (F.map f.2) →
                  set.range (F.map f'.2) = set.range (F.map f.2),
   { obtain ⟨⟨i, f⟩, fmin⟩ := this,
     refine ⟨i, f, λ i' f', _⟩,
+    have := (directed_on_range.mp $ F.range_directed_of_is_cofiltered j).is_bot_of_is_min,
+    sorry,
     refine directed_on_min (F.ranges_directed_of_is_cofiltered j) _ ⟨⟨i, f⟩,rfl⟩ _ _ ⟨⟨i',f'⟩,rfl⟩,
     simp only [set.mem_range, psigma.exists, forall_exists_index],
     rintro _ k g rfl gf,
