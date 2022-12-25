@@ -125,9 +125,9 @@ let ⟨k', h, h', _⟩ := is_cofiltered_or_empty.cocone_objs j j',
 -- are stated with `is_cofiltered` rather than `is_cofiltered_or_empty` though. Maybe because the former is shorter?
 
 section
-variables {J : Type u} [category J] (F : J ⥤ Type v) {i : J} (s : set (F.obj i))
+variables {J : Type u} [category J] (F : J ⥤ Type v) {i j : J} (s : set (F.obj i))
 
-lemma is_mittag_leffler_iff_subset_range_comp [is_cofiltered J] :
+lemma is_mittag_leffler_iff_subset_range_comp [is_cofiltered_or_empty J] :
   F.is_mittag_leffler ↔
   ∀ j : J, ∃ i (f : i ⟶ j), ∀ k (g : k ⟶ i), set.range (F.map f) ⊆ set.range (F.map $ g ≫ f) :=
 begin
@@ -136,6 +136,15 @@ begin
   refine (h k g).trans _,
   rw [he, F.map_comp],
   apply set.range_comp_subset_range,
+end
+
+lemma is_mittag_leffler.mem_image_eventual_range (h : F.is_mittag_leffler) {x}
+  (hx : x ∈ F.eventual_range i) (f : j ⟶ i) : ∃ y ∈ F.eventual_range j, F.map f y = x :=
+begin
+  rw is_mittag_leffler_iff_eventual_range at h,
+  obtain ⟨k, g, hg⟩ := h j, simp_rw hg,
+  obtain ⟨x, rfl⟩ := set.mem_Inter₂.1 hx k (g ≫ f),
+  refine ⟨_, ⟨x, rfl⟩, by simpa only [F.map_comp]⟩,
 end
 
 @[simps] def restrict : J ⥤ Type v :=
@@ -148,25 +157,26 @@ end
   map_id' := λ j, by { simp_rw F.map_id, ext, refl },
   map_comp' := λ j k l f g, by { simp_rw F.map_comp, refl } }
 
+lemma is_mittag_leffler.restrict [is_cofiltered_or_empty J] (h : F.is_mittag_leffler) :
+  (F.restrict s).is_mittag_leffler :=
+(is_mittag_leffler_iff_subset_range_comp _).2 $ λ j, begin
+  obtain ⟨k, g₁, f₁, -⟩ := is_cofiltered_or_empty.cocone_objs i j,
+  obtain ⟨l, f₂, h₂⟩ := F.is_mittag_leffler_iff_eventual_range.1 h k,
+  refine ⟨l, f₂ ≫ f₁, λ m f₃, _⟩,
+  rintro _ ⟨x, rfl⟩,
+  have : F.map f₂ x.1 ∈ F.eventual_range k, { rw h₂, exact ⟨_, rfl⟩ },
+  obtain ⟨y, hy, h₃⟩ := h.mem_image_eventual_range F this (f₃ ≫ f₂),
+  refine ⟨⟨y, set.mem_Inter.2 $ λ g₂, _⟩, _⟩,
+  { obtain ⟨m, f₄, h₄⟩ := is_cofiltered_or_empty.cocone_maps g₂ ((f₃ ≫ f₂) ≫ g₁),
+    obtain ⟨y, rfl⟩ := set.mem_Inter₂.1 hy m f₄,
+    rw [set.mem_preimage, ← function.comp_apply (F.map _), ← types_comp, ← F.map_comp, h₄],
+    simp_rw [F.map_comp, types_comp, function.comp_apply] at h₃ ⊢,
+    rw [h₃, ← function.comp_apply (F.map _), ← types_comp, ← F.map_comp],
+    apply set.mem_Inter.1 x.2 },
+  { ext1, simp_rw [restrict_map, set.maps_to.coe_restrict_apply, subtype.coe_mk],
+    rw [← category.assoc, F.map_comp, types_comp, function.comp_apply, h₃, F.map_comp], refl },
 end
 
-lemma is_mittag_leffler.restrict {J} [preorder J] [nonempty J] [is_directed J (≥)] {F : J ⥤ Type v}
-  {i} (s : set (F.obj i)) (h : F.is_mittag_leffler) : (F.restrict s).is_mittag_leffler :=
-begin
-  rw is_mittag_leffler_iff_subset_range_comp at h ⊢,
-  intro j, obtain ⟨k, f, hf⟩ := h j,
-  obtain ⟨l, hil, hkl⟩ := exists_le_le i k,
-  obtain ⟨m, g, hg⟩ := h l,
-  refine ⟨m, g ≫ hom_of_le hkl ≫ f, λ n e, _⟩,
-  rintro _ ⟨x, rfl⟩,
-  obtain ⟨y, hy⟩ := hg n e ⟨x.1, rfl⟩,
-  refine ⟨⟨y, set.mem_Inter.2 $ λ d, _⟩, _⟩,
-  { rw [(subsingleton.elim _ _ : d = (e ≫ g) ≫ hom_of_le hil), F.map_comp, types_comp,
-      set.preimage_comp, set.mem_preimage, hy, ← set.mem_preimage, ← set.preimage_comp,
-      ← types_comp, ← F.map_comp], apply set.mem_Inter.1 x.2 },
-  { ext1, simp_rw [restrict_map, set.maps_to.coe_restrict_apply, subtype.coe_mk],
-    conv_rhs { rw [F.map_comp, types_comp, function.comp_app, ← subtype.val_eq_coe, ← hy,
-      ← function.comp_app (F.map _), ← types_comp, ← F.map_comp, category.assoc] } },
 end
 
 lemma range_directed_of_is_cofiltered
