@@ -55,29 +55,12 @@ Mittag-Leffler, surjective, eventual range, inverse system,
 
 universes u v
 
--- Two lemmas that should go into order.directed
-lemma directed_on_range {α β} {r : α → α → Prop} {f : β → α} :
-  directed r f ↔ directed_on r (set.range f) :=
-by simp_rw [directed, directed_on, set.forall_range_iff, set.exists_range_iff]
-
-private lemma directed_on.is_bot_of_is_min {J : Type u} {s : set J} [preorder J]
-  (h : directed_on (≥) s) (m ∈ s) (min : ∀ (a ∈ s), a ≤ m → m ≤ a) : ∀ a ∈ s, m ≤ a :=
-λ a as, let ⟨x, xs, xm, xa⟩ := h m H a as in (min x xs xm).trans xa
-
 namespace category_theory
 namespace functor
 
-variables {J : Type u} [category J] (F : J ⥤ Type v) {i j k : J} (s : set (F.obj i))
-
-/- to remove -/
-lemma _root_.category_theory.is_cofiltered.cone_over_cospan
-  {J : Type u} [category J] [is_cofiltered_or_empty J] {i j j' : J} (f : j ⟶ i) (f' : j' ⟶ i) :
-  ∃ (k : J) (g : k ⟶ j) (g' : k ⟶ j'), g ≫ f = g' ≫ f' :=
-let ⟨k', h, h', _⟩ := is_cofiltered_or_empty.cocone_objs j j',
-    ⟨k, G, he⟩ := is_cofiltered_or_empty.cocone_maps (h ≫ f) (h' ≫ f') in
-⟨k, G ≫ h, G ≫ h', by simpa only [category.assoc]⟩
-
 open is_cofiltered set functor_to_types
+
+variables {J : Type u} [category J] (F : J ⥤ Type v) {i j k : J} (s : set (F.obj i))
 
 /--
 The eventual range of the functor `F : J ⥤ Type v` at index `j : J` is the intersection
