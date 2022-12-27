@@ -71,6 +71,14 @@ def eventual_range (j : J) := ⋂ i (f : i ⟶ j), range (F.map f)
 lemma mem_eventual_range_iff {x : F.obj j} :
   x ∈ F.eventual_range j ↔ ∀ ⦃i⦄ (f : i ⟶ j), x ∈ range (F.map f) := mem_Inter₂
 
+/- TFAE :
+  range (F.map f) = F.eventual_range j,
+  range (F.map f) ⊆ F.eventual_range j,
+  ∀ g, range (F.map f) ⊆ range (F.map g),
+  ∀ g, range (F.map f) ⊆ range (F.map $ g ≫ f) (cofiltered case)
+
+  Moreover, if range (F.map f) = F.eventual_range j, then
+    the same for g ≫ f in place of f. -/
 /--
 The functor `F : J ⥤ Type v` satisfies the Mittag-Leffler condition if for all `j : J`,
 there exists some `i : J` and `f : i ⟶ j` such that for all `k : J` and `g : k ⟶ j`, the range
@@ -148,29 +156,20 @@ end
 lemma is_mittag_leffler.restrict (h : F.is_mittag_leffler) :
   (F.restrict s).is_mittag_leffler :=
 (is_mittag_leffler_iff_subset_range_comp _).2 $ λ j, begin
-  obtain ⟨j₁, g₁, f₁, -⟩ := is_cofiltered_or_empty.cocone_objs i j,
+  obtain ⟨j₁, g₁, f₁, -⟩ := cone_objs i j,
   obtain ⟨j₂, f₂, h₂⟩ := F.is_mittag_leffler_iff_eventual_range.1 h j₁,
   refine ⟨j₂, f₂ ≫ f₁, λ j₃ f₃, _⟩,
   rintro _ ⟨⟨x, hx⟩, rfl⟩,
   have : F.map f₂ x ∈ F.eventual_range j₁, { rw h₂, exact ⟨_, rfl⟩ },
   obtain ⟨y, hy, h₃⟩ := h.subset_image_eventual_range F (f₃ ≫ f₂) this,
   refine ⟨⟨y, mem_Inter.2 $ λ g₂, _⟩, _⟩,
-  { obtain ⟨j₄, f₄, h₄⟩ := is_cofiltered_or_empty.cocone_maps g₂ ((f₃ ≫ f₂) ≫ g₁),
+  { obtain ⟨j₄, f₄, h₄⟩ := cone_maps g₂ ((f₃ ≫ f₂) ≫ g₁),
     obtain ⟨y, rfl⟩ := F.mem_eventual_range_iff.1 hy f₄,
     rw ← map_comp_apply at h₃,
     rw [mem_preimage, ← map_comp_apply, h₄, ← category.assoc, map_comp_apply, h₃, ← map_comp_apply],
     apply mem_Inter.1 hx },
   { ext1, simp_rw [restrict_map, maps_to.coe_restrict_apply, subtype.coe_mk],
     rw [← category.assoc, map_comp_apply, h₃, map_comp_apply] },
-end
-
-lemma range_directed_of_is_cofiltered (j : J) :
-  directed (⊇) (λ f : Σ' i, i ⟶ j, range (F.map f.2)) :=
-begin
-  rintros ⟨i, ij⟩ ⟨k, kj⟩,
-  obtain ⟨l, li, lk, e⟩ := cone_over_cospan ij kj,
-  refine ⟨⟨l, li ≫ ij⟩, _, _⟩, swap 2, rw e,
-  all_goals { simp_rw F.map_comp, apply range_comp_subset_range, },
 end
 
 lemma is_mittag_leffler_of_exists_finite_range
@@ -217,7 +216,7 @@ The sections of the functor `F : J ⥤ Type v` are in bijection with the section
 `F.eventual_ranges`.
 -/
 def to_eventual_ranges_sections_equiv : F.to_eventual_ranges.sections ≃ F.sections :=
-{ to_fun := λ ss, ⟨_, λ i j f, subtype.coe_inj.2 $ ss.prop f⟩,
+{ to_fun := λ s, ⟨_, λ i j f, subtype.coe_inj.2 $ s.prop f⟩,
   inv_fun := λ s, ⟨λ j, ⟨_, mem_Inter₂.2 $ λ i f, ⟨_, s.prop f⟩⟩, λ i j f, subtype.ext $ s.prop f⟩,
   left_inv := λ _, by { ext, refl },
   right_inv := λ _, by { ext, refl } }
@@ -226,7 +225,7 @@ def to_eventual_ranges_sections_equiv : F.to_eventual_ranges.sections ≃ F.sect
 If `F` satisfies the Mittag-Leffler condition, its restriction to eventual ranges is a surjective
 functor.
 -/
-lemma surjective_to_eventual_ranges (h : F.is_mittag_leffler) (i j : J) (f : i ⟶ j) :
+lemma surjective_to_eventual_ranges (h : F.is_mittag_leffler) (f : i ⟶ j) :
   (F.to_eventual_ranges.map f).surjective :=
 λ ⟨x, hx⟩, by { obtain ⟨y, hy, rfl⟩ := h.subset_image_eventual_range F f hx, exact ⟨⟨y, hy⟩, rfl⟩ }
 
