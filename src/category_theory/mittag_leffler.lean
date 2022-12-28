@@ -133,7 +133,7 @@ lemma eventual_range_maps_to (f : j ⟶ i) :
 λ x hx, begin
   rw mem_eventual_range_iff at hx ⊢,
   intros k f',
-  obtain ⟨l, g, g', he⟩ := cone_over_cospan f f',
+  obtain ⟨l, g, g', he⟩ := cospan f f',
   obtain ⟨x, rfl⟩ := hx g,
   rw [← map_comp_apply, he, F.map_comp],
   exact ⟨_, rfl⟩,
@@ -147,7 +147,7 @@ lemma is_mittag_leffler_iff_subset_range_comp : F.is_mittag_leffler ↔
   ∀ j : J, ∃ i (f : i ⟶ j), ∀ ⦃k⦄ (g : k ⟶ i), range (F.map f) ⊆ range (F.map $ g ≫ f) :=
 begin
   refine forall_congr (λ j, exists₂_congr $ λ i f, ⟨λ h k g, h _, λ h j' f', _⟩),
-  obtain ⟨k, g, g', he⟩ := cone_over_cospan f f',
+  obtain ⟨k, g, g', he⟩ := cospan f f',
   refine (h g).trans _,
   rw [he, F.map_comp],
   apply range_comp_subset_range,
@@ -173,7 +173,7 @@ lemma is_mittag_leffler.restrict (h : F.is_mittag_leffler) :
 end
 
 lemma is_mittag_leffler_of_exists_finite_range
-  (h : ∀ (j : J), ∃ i (f : i ⟶ j), (range (F.map f)).finite) :
+  (h : ∀ (j : J), ∃ i (f : i ⟶ j), (range $ F.map f).finite) :
   F.is_mittag_leffler :=
 begin
   rintro j,
