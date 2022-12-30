@@ -175,31 +175,16 @@ end
 lemma is_mittag_leffler_of_exists_finite_range
   (h : ∀ (j : J), ∃ i (f : i ⟶ j), (range $ F.map f).finite) :
   F.is_mittag_leffler :=
-begin
-  rintro j,
--- trying to use `well_founded.has_min`
-  suffices : ∃ (f : Σ' i, i ⟶ j), ∀ (f' : Σ' i, i ⟶ j),
-               range (F.map f'.2) ≤ range (F.map f.2) →
-                 range (F.map f'.2) = range (F.map f.2),
-  { obtain ⟨⟨i, f⟩, fmin⟩ := this,
-    refine ⟨i, f, λ i' f', _⟩,
-    have := (directed_on_range.mp $ F.range_directed_of_is_cofiltered j).is_bot_of_is_min,
-    sorry,
-    refine directed_on_min (F.ranges_directed_of_is_cofiltered j) _ ⟨⟨i, f⟩,rfl⟩ _ _ ⟨⟨i',f'⟩,rfl⟩,
-    simp only [mem_range, psigma.exists, forall_exists_index],
-    rintro _ k g rfl gf,
-    exact fmin ⟨k,g⟩ gf, },
-
-  let fins := subtype { f : Σ' i, i ⟶ j | (range (F.map f.2)).finite },
-  haveI : nonempty fins := by { obtain ⟨i,f,fin⟩ := h j, exact ⟨⟨⟨i,f⟩,fin⟩⟩, },
-  let fmin := function.argmin (λ (f : fins), f.prop.to_finset.card) nat.lt_wf,
-  use fmin.val,
-  rintro g gf,
-  cases lt_or_eq_of_le gf,
-  { have gfin : (range (F.map g.2)).finite := fmin.prop.subset gf,
-    refine ((λ (f : fins), f.prop.to_finset.card).not_lt_argmin nat.lt_wf ⟨g, gfin⟩ _).elim,
-    exact finset.card_lt_card (set.finite.to_finset_ssubset.mpr h_1), },
-  { assumption, },
+λ j, begin
+  obtain ⟨i, hi, hf⟩ := h j,
+  obtain ⟨m, ⟨i, f, hm⟩, hmin⟩ := finset.is_well_founded_lt.wf.has_min
+    {s : finset (F.obj j) | ∃ i (f : i ⟶ j), ↑s = range (F.map f)} ⟨_, i, hi, hf.coe_to_finset⟩,
+  refine ⟨i, f, λ k g,
+    (directed_on_range.mp $ F.ranges_directed j).is_bot_of_is_min ⟨⟨i, f⟩, rfl⟩ _ _ ⟨⟨k, g⟩, rfl⟩⟩,
+  rintro _ ⟨⟨k', g'⟩, rfl⟩ hl,
+  refine (eq_of_le_of_not_lt hl _).ge,
+  have := hmin _ ⟨k', g', (m.finite_to_set.subset $ hm.substr hl).coe_to_finset⟩,
+  rwa [finset.lt_iff_ssubset, ← finset.coe_ssubset, set.finite.coe_to_finset, hm] at this,
 end
 
 /--
