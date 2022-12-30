@@ -553,7 +553,7 @@ lemma cospan {i j j' : C} (f : j ⟶ i) (f' : j' ⟶ i) :
 let ⟨K, G, G', _⟩ := cone_objs j j', ⟨k, e, he⟩ := cone_maps (G ≫ f) (G' ≫ f') in
 ⟨k, e ≫ G, e ≫ G', by simpa only [category.assoc]⟩
 
-lemma ranges_directed (F : C ⥤ Type*) (j : C) :
+lemma _root_.category_theory.functor.ranges_directed (F : C ⥤ Type*) (j : C) :
   directed (⊇) (λ (f : Σ' i, i ⟶ j), set.range (F.map f.2)) :=
 λ ⟨i, ij⟩ ⟨k, kj⟩, let ⟨l, li, lk, e⟩ := cospan ij kj in
 by refine ⟨⟨l, lk ≫ kj⟩, e ▸ _, _⟩; simp_rw F.map_comp; apply set.range_comp_subset_range
