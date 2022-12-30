@@ -110,6 +110,7 @@ lemma is_mittag_leffler_of_surjective
   (h : ∀ (i j : J) (f : i ⟶ j), (F.map f).surjective) : F.is_mittag_leffler :=
 λ j, ⟨j, 𝟙 j, λ k g, by rw [map_id, types_id, range_id, (h k j g).range_eq]⟩
 
+/-- The subfunctor of `F` obtained by restricting to the preimages of a set `s ∈ F.obj i`. -/
 @[simps] def to_preimages : J ⥤ Type v :=
 { obj := λ j, ⋂ f : j ⟶ i, F.map f ⁻¹' s,
   map := λ j k g, maps_to.restrict (F.map g) _ _ $ λ x h, begin
@@ -213,6 +214,12 @@ instance to_eventual_ranges_nonempty (h : F.is_mittag_leffler) [∀ (j : J), non
   (j : J) : nonempty (F.to_eventual_ranges.obj j) :=
 let ⟨i, f, h⟩ := F.is_mittag_leffler_iff_eventual_range.1 h j in
 by { rw [to_eventual_ranges_obj, h], apply_instance }
+
+/-- If `F` has all arrows surjective, then it "factors through a poset". -/
+lemma thin_diagram_of_surjective (Fsur : ∀ (i j : J) (f : i ⟶ j), (F.map f).surjective)
+  (i j) (f g : i ⟶ j) : F.map f = F.map g :=
+let ⟨k, φ, hφ⟩ := cone_maps f g in
+(Fsur k i φ).injective_comp_right $ by simp_rw [← types_comp, ← F.map_comp, hφ]
 
 end functor
 end category_theory
