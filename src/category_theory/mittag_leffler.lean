@@ -65,14 +65,6 @@ def eventual_range (j : J) := ⋂ i (f : i ⟶ j), range (F.map f)
 lemma mem_eventual_range_iff {x : F.obj j} :
   x ∈ F.eventual_range j ↔ ∀ ⦃i⦄ (f : i ⟶ j), x ∈ range (F.map f) := mem_Inter₂
 
-/- TFAE :
-  range (F.map f) = F.eventual_range j,
-  range (F.map f) ⊆ F.eventual_range j,
-  ∀ g, range (F.map f) ⊆ range (F.map g),
-  ∀ g, range (F.map f) ⊆ range (F.map $ g ≫ f) (cofiltered case)
-
-  Moreover, if range (F.map f) = F.eventual_range j, then
-    the same for g ≫ f in place of f. -/
 /--
 The functor `F : J ⥤ Type v` satisfies the Mittag-Leffler condition if for all `j : J`,
 there exists some `i : J` and `f : i ⟶ j` such that for all `k : J` and `g : k ⟶ j`, the range
@@ -134,19 +126,25 @@ lemma eventual_range_maps_to (f : j ⟶ i) :
   exact ⟨_, rfl⟩,
 end
 
-lemma is_mittag_leffler.eq_image_eventual_range (h : F.is_mittag_leffler)
-  (f : j ⟶ i) : F.eventual_range i = F.map f '' (F.eventual_range j) :=
+lemma is_mittag_leffler.eq_image_eventual_range (h : F.is_mittag_leffler) (f : j ⟶ i) :
+  F.eventual_range i = F.map f '' (F.eventual_range j) :=
 (h.subset_image_eventual_range F f).antisymm $ maps_to'.1 (F.eventual_range_maps_to f)
 
-lemma is_mittag_leffler_iff_subset_range_comp : F.is_mittag_leffler ↔
-  ∀ j : J, ∃ i (f : i ⟶ j), ∀ ⦃k⦄ (g : k ⟶ i), range (F.map f) ⊆ range (F.map $ g ≫ f) :=
+lemma eventual_range_eq_iff {f : i ⟶ j} :
+  F.eventual_range j = range (F.map f) ↔
+  ∀ ⦃k⦄ (g : k ⟶ i), range (F.map f) ⊆ range (F.map $ g ≫ f) :=
 begin
-  refine forall_congr (λ j, exists₂_congr $ λ i f, ⟨λ h k g, h _, λ h j' f', _⟩),
+  rw [subset_antisymm_iff, eventual_range, and_iff_right (Inter₂_subset _ _), subset_Inter₂_iff],
+  refine ⟨λ h k g, h _ _, λ h j' f', _⟩,
   obtain ⟨k, g, g', he⟩ := cospan f f',
   refine (h g).trans _,
   rw [he, F.map_comp],
   apply range_comp_subset_range,
 end
+
+lemma is_mittag_leffler_iff_subset_range_comp : F.is_mittag_leffler ↔
+  ∀ j : J, ∃ i (f : i ⟶ j), ∀ ⦃k⦄ (g : k ⟶ i), range (F.map f) ⊆ range (F.map $ g ≫ f) :=
+by simp_rw [is_mittag_leffler_iff_eventual_range, eventual_range_eq_iff]
 
 lemma is_mittag_leffler.to_preimages (h : F.is_mittag_leffler) :
   (F.to_preimages s).is_mittag_leffler :=
@@ -157,13 +155,13 @@ lemma is_mittag_leffler.to_preimages (h : F.is_mittag_leffler) :
   rintro _ ⟨⟨x, hx⟩, rfl⟩,
   have : F.map f₂ x ∈ F.eventual_range j₁, { rw h₂, exact ⟨_, rfl⟩ },
   obtain ⟨y, hy, h₃⟩ := h.subset_image_eventual_range F (f₃ ≫ f₂) this,
-  refine ⟨⟨y, mem_Inter.2 $ λ g₂, _⟩, _⟩,
+  refine ⟨⟨y, mem_Inter.2 $ λ g₂, _⟩, subtype.ext _⟩,
   { obtain ⟨j₄, f₄, h₄⟩ := cone_maps g₂ ((f₃ ≫ f₂) ≫ g₁),
     obtain ⟨y, rfl⟩ := F.mem_eventual_range_iff.1 hy f₄,
     rw ← map_comp_apply at h₃,
     rw [mem_preimage, ← map_comp_apply, h₄, ← category.assoc, map_comp_apply, h₃, ← map_comp_apply],
     apply mem_Inter.1 hx },
-  { ext1, simp_rw [to_preimages_map, maps_to.coe_restrict_apply, subtype.coe_mk],
+  { simp_rw [to_preimages_map, maps_to.coe_restrict_apply, subtype.coe_mk],
     rw [← category.assoc, map_comp_apply, h₃, map_comp_apply] },
 end
 
