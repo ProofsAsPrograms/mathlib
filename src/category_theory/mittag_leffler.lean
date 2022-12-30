@@ -4,13 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémi Bottinelli
 -/
 import category_theory.filtered
-import topology.category.Top.limits
-import data.finset.basic
-import category_theory.category.basic
-import category_theory.full_subcategory
 import data.set.finite
-import data.fintype.basic
-import category_theory.types
 
 /-!
 # The Mittag-Leffler condition
@@ -116,7 +110,7 @@ lemma is_mittag_leffler_of_surjective
   (h : ∀ (i j : J) (f : i ⟶ j), (F.map f).surjective) : F.is_mittag_leffler :=
 λ j, ⟨j, 𝟙 j, λ k g, by rw [map_id, types_id, range_id, (h k j g).range_eq]⟩
 
-@[simps] def restrict : J ⥤ Type v :=
+@[simps] def to_preimages : J ⥤ Type v :=
 { obj := λ j, ⋂ f : j ⟶ i, F.map f ⁻¹' s,
   map := λ j k g, maps_to.restrict (F.map g) _ _ $ λ x h, begin
     rw [mem_Inter] at h ⊢, intro f,
@@ -153,8 +147,8 @@ begin
   apply range_comp_subset_range,
 end
 
-lemma is_mittag_leffler.restrict (h : F.is_mittag_leffler) :
-  (F.restrict s).is_mittag_leffler :=
+lemma is_mittag_leffler.to_preimages (h : F.is_mittag_leffler) :
+  (F.to_preimages s).is_mittag_leffler :=
 (is_mittag_leffler_iff_subset_range_comp _).2 $ λ j, begin
   obtain ⟨j₁, g₁, f₁, -⟩ := cone_objs i j,
   obtain ⟨j₂, f₂, h₂⟩ := F.is_mittag_leffler_iff_eventual_range.1 h j₁,
@@ -168,7 +162,7 @@ lemma is_mittag_leffler.restrict (h : F.is_mittag_leffler) :
     rw ← map_comp_apply at h₃,
     rw [mem_preimage, ← map_comp_apply, h₄, ← category.assoc, map_comp_apply, h₃, ← map_comp_apply],
     apply mem_Inter.1 hx },
-  { ext1, simp_rw [restrict_map, maps_to.coe_restrict_apply, subtype.coe_mk],
+  { ext1, simp_rw [to_preimages_map, maps_to.coe_restrict_apply, subtype.coe_mk],
     rw [← category.assoc, map_comp_apply, h₃, map_comp_apply] },
 end
 
@@ -190,7 +184,7 @@ end
 /--
 The subfunctor of `F` obtained by restricting to the eventual range at each index.
 -/
-def to_eventual_ranges : J ⥤ Type v :=
+@[simps] def to_eventual_ranges : J ⥤ Type v :=
 { obj := λ j, F.eventual_range j,
   map := λ i j f, (F.eventual_range_maps_to f).restrict _ _ _,
   map_id' := λ i, by { simp_rw F.map_id, ext, refl },
@@ -213,6 +207,12 @@ functor.
 lemma surjective_to_eventual_ranges (h : F.is_mittag_leffler) (f : i ⟶ j) :
   (F.to_eventual_ranges.map f).surjective :=
 λ ⟨x, hx⟩, by { obtain ⟨y, hy, rfl⟩ := h.subset_image_eventual_range F f hx, exact ⟨⟨y, hy⟩, rfl⟩ }
+
+/-- If `F` is nonempty at each index and Mittag-Leffler, then so is `F.to_eventual_ranges`. -/
+instance to_eventual_ranges_nonempty (h : F.is_mittag_leffler) [∀ (j : J), nonempty (F.obj j)]
+  (j : J) : nonempty (F.to_eventual_ranges.obj j) :=
+let ⟨i, f, h⟩ := F.is_mittag_leffler_iff_eventual_range.1 h j in
+by { rw [to_eventual_ranges_obj, h], apply_instance }
 
 end functor
 end category_theory
