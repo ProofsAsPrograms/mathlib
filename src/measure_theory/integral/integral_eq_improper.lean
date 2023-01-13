@@ -3,6 +3,7 @@ Copyright (c) 2021 Anatole Dedecker. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Anatole Dedecker, Bhavik Mehta
 -/
+import analysis.special_functions.pow_deriv
 import measure_theory.integral.interval_integral
 import order.filter.at_top_bot
 import measure_theory.function.jacobian
