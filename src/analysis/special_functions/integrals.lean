@@ -5,6 +5,7 @@ Authors: Benjamin Davidson
 -/
 import measure_theory.integral.interval_integral
 import analysis.special_functions.trigonometric.arctan_deriv
+import analysis.special_functions.pow_deriv
 
 /-!
 # Integration of specific interval integrals
