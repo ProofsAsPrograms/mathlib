@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Rémy Degenne
 -/
 import analysis.normed.order.lattice
-import measure_theory.function.lp_space.basic
+import measure_theory.function.l1_space
 
 /-!
 # Order related properties of Lp spaces
@@ -101,4 +101,19 @@ instance [fact (1 ≤ p)] : normed_lattice_add_comm_group (Lp E p μ) :=
 end order
 
 end Lp
+
+lemma integrable.inf {β} [normed_lattice_add_comm_group β] {f g : α → β}
+  (hf : integrable f μ) (hg : integrable g μ) :
+  integrable (f ⊓ g) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf hg ⊢, exact hf.inf hg, }
+
+lemma integrable.sup {β} [normed_lattice_add_comm_group β] {f g : α → β}
+  (hf : integrable f μ) (hg : integrable g μ) :
+  integrable (f ⊔ g) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf hg ⊢, exact hf.sup hg, }
+
+lemma integrable.abs {β} [normed_lattice_add_comm_group β] {f : α → β} (hf : integrable f μ) :
+  integrable (λ a, |f a|) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.abs, }
+
 end measure_theory

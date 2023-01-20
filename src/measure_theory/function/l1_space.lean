@@ -3,7 +3,7 @@ Copyright (c) 2019 Zhouhang Zhou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Zhouhang Zhou
 -/
-import measure_theory.function.lp_space.order
+import measure_theory.function.lp_space.basic
 
 
 /-!
@@ -607,20 +607,6 @@ lemma integrable.norm {f : α → β} (hf : integrable f μ) :
   integrable (λ a, ‖f a‖) μ :=
 ⟨hf.ae_strongly_measurable.norm, hf.has_finite_integral.norm⟩
 
-lemma integrable.inf {β} [normed_lattice_add_comm_group β] {f g : α → β}
-  (hf : integrable f μ) (hg : integrable g μ) :
-  integrable (f ⊓ g) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf hg ⊢, exact hf.inf hg, }
-
-lemma integrable.sup {β} [normed_lattice_add_comm_group β] {f g : α → β}
-  (hf : integrable f μ) (hg : integrable g μ) :
-  integrable (f ⊔ g) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf hg ⊢, exact hf.sup hg, }
-
-lemma integrable.abs {β} [normed_lattice_add_comm_group β] {f : α → β} (hf : integrable f μ) :
-  integrable (λ a, |f a|) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.abs, }
-
 lemma integrable.bdd_mul {F : Type*} [normed_division_ring F]
   {f g : α → F} (hint : integrable g μ) (hm : ae_strongly_measurable f μ)
   (hfbdd : ∃ C, ∀ x, ‖f x‖ ≤ C) :
@@ -932,35 +918,7 @@ begin
   exact (norm_mul_le _ _).trans (mul_le_mul_of_nonneg_right hx (norm_nonneg _)),
 end
 
-lemma integrable.of_real {f : α → ℝ} (hf : integrable f μ) :
-  integrable (λ x, (f x : 𝕜)) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.of_real }
-
-lemma integrable.re_im_iff :
-  integrable (λ x, is_R_or_C.re (f x)) μ ∧ integrable (λ x, is_R_or_C.im (f x)) μ ↔
-  integrable f μ :=
-by { simp_rw ← mem_ℒp_one_iff_integrable, exact mem_ℒp_re_im_iff }
-
-lemma integrable.re (hf : integrable f μ) : integrable (λ x, is_R_or_C.re (f x)) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.re, }
-
-lemma integrable.im (hf : integrable f μ) : integrable (λ x, is_R_or_C.im (f x)) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.im, }
-
 end is_R_or_C
-
-section inner_product
-variables {𝕜 E : Type*} [is_R_or_C 𝕜] [inner_product_space 𝕜 E] {f : α → E}
-
-local notation `⟪`x`, `y`⟫` := @inner 𝕜 E _ x y
-
-lemma integrable.const_inner (c : E) (hf : integrable f μ) : integrable (λ x, ⟪c, f x⟫) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.const_inner c, }
-
-lemma integrable.inner_const (hf : integrable f μ) (c : E) : integrable (λ x, ⟪f x, c⟫) μ :=
-by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.inner_const c, }
-
-end inner_product
 
 section trim
 
