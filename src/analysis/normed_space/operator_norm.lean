@@ -42,82 +42,7 @@ variables [nontrivially_normed_field 𝕜] [nontrivially_normed_field 𝕜₂]
   {σ₁₂ : 𝕜 →+* 𝕜₂} {σ₂₃ : 𝕜₂ →+* 𝕜₃} {σ₁₃ : 𝕜 →+* 𝕜₃}
   [ring_hom_comp_triple σ₁₂ σ₂₃ σ₁₃]
 
-/-- If `‖x‖ = 0` and `f` is continuous then `‖f x‖ = 0`. -/
-lemma norm_image_of_norm_zero [semilinear_map_class 𝓕 σ₁₂ E F] (f : 𝓕)
-  (hf : continuous f) {x : E} (hx : ‖x‖ = 0) : ‖f x‖ = 0 :=
-begin
-  refine le_antisymm (le_of_forall_pos_le_add (λ ε hε, _)) (norm_nonneg (f x)),
-  rcases normed_add_comm_group.tendsto_nhds_nhds.1 (hf.tendsto 0) ε hε with ⟨δ, δ_pos, hδ⟩,
-  replace hδ := hδ x,
-  rw [sub_zero, hx] at hδ,
-  replace hδ := le_of_lt (hδ δ_pos),
-  rw [map_zero, sub_zero] at hδ,
-  rwa [zero_add]
-end
-
-section
-
-variables [ring_hom_isometric σ₁₂] [ring_hom_isometric σ₂₃]
-
-lemma semilinear_map_class.bound_of_shell_semi_normed [semilinear_map_class 𝓕 σ₁₂ E F]
-  (f : 𝓕) {ε C : ℝ} (ε_pos : 0 < ε) {c : 𝕜} (hc : 1 < ‖c‖)
-  (hf : ∀ x, ε / ‖c‖ ≤ ‖x‖ → ‖x‖ < ε → ‖f x‖ ≤ C * ‖x‖) {x : E} (hx : ‖x‖ ≠ 0) :
-  ‖f x‖ ≤ C * ‖x‖ :=
-begin
-  rcases rescale_to_shell_semi_normed hc ε_pos hx with ⟨δ, hδ, δxle, leδx, δinv⟩,
-  have := hf (δ • x) leδx δxle,
-  simpa only [map_smulₛₗ, norm_smul, mul_left_comm C, mul_le_mul_left (norm_pos_iff.2 hδ),
-              ring_hom_isometric.is_iso] using hf (δ • x) leδx δxle
-end
-
-/-- A continuous linear map between seminormed spaces is bounded when the field is nontrivially
-normed. The continuity ensures boundedness on a ball of some radius `ε`. The nontriviality of the
-norm is then used to rescale any element into an element of norm in `[ε/C, ε]`, whose image has a
-controlled norm. The norm control for the original element follows by rescaling. -/
-lemma semilinear_map_class.bound_of_continuous [semilinear_map_class 𝓕 σ₁₂ E F] (f : 𝓕)
-  (hf : continuous f) : ∃ C, 0 < C ∧ (∀ x : E, ‖f x‖ ≤ C * ‖x‖) :=
-begin
-  rcases normed_add_comm_group.tendsto_nhds_nhds.1 (hf.tendsto 0) 1 zero_lt_one with ⟨ε, ε_pos, hε⟩,
-  simp only [sub_zero, map_zero] at hε,
-  rcases normed_field.exists_one_lt_norm 𝕜 with ⟨c, hc⟩,
-  have : 0 < ‖c‖ / ε, from div_pos (zero_lt_one.trans hc) ε_pos,
-  refine ⟨‖c‖ / ε, this, λ x, _⟩,
-  by_cases hx : ‖x‖ = 0,
-  { rw [hx, mul_zero],
-    exact le_of_eq (norm_image_of_norm_zero f hf hx) },
-  refine semilinear_map_class.bound_of_shell_semi_normed f ε_pos hc (λ x hle hlt, _) hx,
-  refine (hε _ hlt).le.trans _,
-  rwa [← div_le_iff' this, one_div_div]
-end
-
-end
-
 namespace continuous_linear_map
-
-theorem bound [ring_hom_isometric σ₁₂] (f : E →SL[σ₁₂] F) :
-  ∃ C, 0 < C ∧ (∀ x : E, ‖f x‖ ≤ C * ‖x‖) :=
-semilinear_map_class.bound_of_continuous f f.2
-
-section
-open filter
-
-variables (𝕜 E)
-/-- Given a unit-length element `x` of a normed space `E` over a field `𝕜`, the natural linear
-    isometry map from `𝕜` to `E` by taking multiples of `x`.-/
-def _root_.linear_isometry.to_span_singleton {v : E} (hv : ‖v‖ = 1) : 𝕜 →ₗᵢ[𝕜] E :=
-{ norm_map' := λ x, by simp [norm_smul, hv],
-  .. linear_map.to_span_singleton 𝕜 E v }
-variables {𝕜 E}
-
-@[simp] lemma _root_.linear_isometry.to_span_singleton_apply {v : E} (hv : ‖v‖ = 1) (a : 𝕜) :
-  linear_isometry.to_span_singleton 𝕜 E hv a = a • v :=
-rfl
-
-@[simp] lemma _root_.linear_isometry.coe_to_span_singleton {v : E} (hv : ‖v‖ = 1) :
-  (linear_isometry.to_span_singleton 𝕜 E hv).to_linear_map = linear_map.to_span_singleton 𝕜 E v :=
-rfl
-
-end
 
 section op_norm
 open set real
@@ -1137,36 +1062,6 @@ variables [nontrivially_normed_field 𝕜] [nontrivially_normed_field 𝕜₂]
   {σ₁₂ : 𝕜 →+* 𝕜₂} {σ₂₃ : 𝕜₂ →+* 𝕜₃}
   (f g : E →SL[σ₁₂] F) (x y z : E)
 
-lemma linear_map.bound_of_shell [ring_hom_isometric σ₁₂] (f : E →ₛₗ[σ₁₂] F) {ε C : ℝ}
-  (ε_pos : 0 < ε) {c : 𝕜} (hc : 1 < ‖c‖)
-  (hf : ∀ x, ε / ‖c‖ ≤ ‖x‖ → ‖x‖ < ε → ‖f x‖ ≤ C * ‖x‖) (x : E) :
-  ‖f x‖ ≤ C * ‖x‖ :=
-begin
-  by_cases hx : x = 0, { simp [hx] },
-  exact semilinear_map_class.bound_of_shell_semi_normed f ε_pos hc hf
-    (ne_of_lt (norm_pos_iff.2 hx)).symm
-end
-
-/--
-`linear_map.bound_of_ball_bound'` is a version of this lemma over a field satisfying `is_R_or_C`
-that produces a concrete bound.
--/
-lemma linear_map.bound_of_ball_bound {r : ℝ} (r_pos : 0 < r) (c : ℝ) (f : E →ₗ[𝕜] Fₗ)
-  (h : ∀ z ∈ metric.ball (0 : E) r, ‖f z‖ ≤ c) :
-  ∃ C, ∀ (z : E), ‖f z‖ ≤ C * ‖z‖ :=
-begin
-  cases @nontrivially_normed_field.non_trivial 𝕜 _ with k hk,
-  use c * (‖k‖ / r),
-  intro z,
-  refine linear_map.bound_of_shell _ r_pos hk (λ x hko hxo, _) _,
-  calc ‖f x‖ ≤ c : h _ (mem_ball_zero_iff.mpr hxo)
-         ... ≤ c * ((‖x‖ * ‖k‖) / r) : le_mul_of_one_le_right _ _
-         ... = _ : by ring,
-  { exact le_trans (norm_nonneg _) (h 0 (by simp [r_pos])) },
-  { rw [div_le_iff (zero_lt_one.trans hk)] at hko,
-    exact (one_le_div r_pos).mpr hko }
-end
-
 namespace continuous_linear_map
 
 section op_norm
@@ -1213,40 +1108,6 @@ begin
 end
 
 variable (f)
-
-/-- If a continuous linear map is a uniform embedding, then it is expands the distances
-by a positive factor.-/
-theorem antilipschitz_of_uniform_embedding (f : E →L[𝕜] Fₗ) (hf : uniform_embedding f) :
-  ∃ K, antilipschitz_with K f :=
-begin
-  obtain ⟨ε, εpos, hε⟩ : ∃ (ε : ℝ) (H : ε > 0), ∀ {x y : E}, dist (f x) (f y) < ε → dist x y < 1,
-    from (uniform_embedding_iff.1 hf).2.2 1 zero_lt_one,
-  let δ := ε/2,
-  have δ_pos : δ > 0 := half_pos εpos,
-  have H : ∀{x}, ‖f x‖ ≤ δ → ‖x‖ ≤ 1,
-  { assume x hx,
-    have : dist x 0 ≤ 1,
-    { refine (hε _).le,
-      rw [f.map_zero, dist_zero_right],
-      exact hx.trans_lt (half_lt_self εpos) },
-    simpa using this },
-  rcases normed_field.exists_one_lt_norm 𝕜 with ⟨c, hc⟩,
-  refine ⟨⟨δ⁻¹, _⟩ * ‖c‖₊, add_monoid_hom_class.antilipschitz_of_bound f $ λx, _⟩,
-  exact inv_nonneg.2 (le_of_lt δ_pos),
-  by_cases hx : f x = 0,
-  { have : f x = f 0, by { simp [hx] },
-    have : x = 0 := (uniform_embedding_iff.1 hf).1 this,
-    simp [this] },
-  { rcases rescale_to_shell hc δ_pos hx with ⟨d, hd, dxlt, ledx, dinv⟩,
-    rw [← f.map_smul d] at dxlt,
-    have : ‖d • x‖ ≤ 1 := H dxlt.le,
-    calc ‖x‖ = ‖d‖⁻¹ * ‖d • x‖ :
-      by rwa [← norm_inv, ← norm_smul, ← mul_smul, inv_mul_cancel, one_smul]
-    ... ≤ ‖d‖⁻¹ * 1 :
-      mul_le_mul_of_nonneg_left this (inv_nonneg.2 (norm_nonneg _))
-    ... ≤ δ⁻¹ * ‖c‖ * ‖f x‖ :
-      by rwa [mul_one] }
-end
 
 section completeness
 
