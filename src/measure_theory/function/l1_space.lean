@@ -918,6 +918,21 @@ begin
   exact (norm_mul_le _ _).trans (mul_le_mul_of_nonneg_right hx (norm_nonneg _)),
 end
 
+lemma integrable.of_real {f : α → ℝ} (hf : integrable f μ) :
+  integrable (λ x, (f x : 𝕜)) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.of_real }
+
+lemma integrable.re_im_iff :
+  integrable (λ x, is_R_or_C.re (f x)) μ ∧ integrable (λ x, is_R_or_C.im (f x)) μ ↔
+  integrable f μ :=
+by { simp_rw ← mem_ℒp_one_iff_integrable, exact mem_ℒp_re_im_iff }
+
+lemma integrable.re (hf : integrable f μ) : integrable (λ x, is_R_or_C.re (f x)) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.re, }
+
+lemma integrable.im (hf : integrable f μ) : integrable (λ x, is_R_or_C.im (f x)) μ :=
+by { rw ← mem_ℒp_one_iff_integrable at hf ⊢, exact hf.im, }
+
 end is_R_or_C
 
 section trim
