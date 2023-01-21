@@ -5,6 +5,7 @@ Authors: Heather Macbeth
 -/
 
 import measure_theory.measure.regular
+import measure_theory.function.lp_space.continuous
 import measure_theory.function.simple_func_dense_lp
 import topology.urysohns_lemma
 
