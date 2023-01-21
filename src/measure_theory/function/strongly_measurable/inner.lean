@@ -31,14 +31,6 @@ variables {m : measurable_space α} {μ : measure α} {𝕜 : Type*} {E : Type*}
   [inner_product_space 𝕜 E]
 local notation `⟪`x`, `y`⟫` := @inner 𝕜 _ _ x y
 
-protected lemma re {f : α → 𝕜} (hf : ae_strongly_measurable f μ) :
-  ae_strongly_measurable (λ x, is_R_or_C.re (f x)) μ :=
-is_R_or_C.continuous_re.comp_ae_strongly_measurable hf
-
-protected lemma im {f : α → 𝕜} (hf : ae_strongly_measurable f μ) :
-  ae_strongly_measurable (λ x, is_R_or_C.im (f x)) μ :=
-is_R_or_C.continuous_im.comp_ae_strongly_measurable hf
-
 protected lemma inner {m : measurable_space α} {μ : measure α} {f g : α → E}
   (hf : ae_strongly_measurable f μ) (hg : ae_strongly_measurable g μ) :
   ae_strongly_measurable (λ x, ⟪f x, g x⟫) μ :=
