@@ -1,5 +1,5 @@
 import analysis.inner_product_space.basic
-import measure_theory.integral.basic
+import measure_theory.integral.set_integral
 
 namespace measure_theory
 
