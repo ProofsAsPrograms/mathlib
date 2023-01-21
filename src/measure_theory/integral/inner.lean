@@ -9,7 +9,7 @@ variables {μ : measure α} {𝕜 : Type*} [is_R_or_C 𝕜] [normed_space 𝕜 E
   [normed_add_comm_group F] [normed_space 𝕜 F]
   {p : ennreal}
 
-variables {E' : Type*} [inner_product_space 𝕜 E'] [complete_space E'] [normed_space ℝ E']
+variables {E' : Type*} [inner_product_space 𝕜 E'] [complete_space E']
 
 local notation `⟪`x`, `y`⟫` := @inner 𝕜 E' _ x y
 
