@@ -40,8 +40,6 @@ This is defined as the maximum of the lengths of `set.subchain`s, valued in `ℕ
 
 -/
 
-attribute [derive complete_linear_order] enat
-
 namespace list
 variables {α : Type*} {r : α → α → Prop} {l : list α} {n : ℕ}
 
