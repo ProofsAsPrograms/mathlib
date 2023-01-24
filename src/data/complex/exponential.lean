@@ -1609,7 +1609,7 @@ lemma add_one_lt_exp_of_nonzero {x : ℝ} (hx : x ≠ 0) : x + 1 < real.exp x :=
 begin
   cases lt_or_gt_of_ne hx,
   { exact real.add_one_lt_exp_of_neg h },
-  exact (add_one_le_exp_of_nonneg h).le,
+  exact add_one_lt_exp_of_pos h,
 end
 
 lemma add_one_le_exp (x : ℝ) : x + 1 ≤ real.exp x :=
