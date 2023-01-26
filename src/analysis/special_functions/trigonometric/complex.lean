@@ -5,7 +5,7 @@ Authors: Chris Hughes, Abhimanyu Pallavi Sudhir, Jean Lo, Calle Sönne, Benjamin
 -/
 import algebra.quadratic_discriminant
 import analysis.special_functions.trigonometric.basic
-import analysis.convex.specific_functions
+import analysis.convex.specific_functions.basic
 
 /-!
 # Complex trigonometric functions

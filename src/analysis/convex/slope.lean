@@ -212,3 +212,70 @@ lemma strict_concave_on_iff_slope_strict_anti_adjacent :
       (f z - f y) / (z - y) < (f y - f x) / (y - x) :=
 ⟨λ h, ⟨h.1, λ x y z, h.slope_anti_adjacent⟩,
   λ h, strict_concave_on_of_slope_strict_anti_adjacent h.1 h.2⟩
+
+lemma convex_on.secant_mono_aux1 (hf : convex_on 𝕜 s f)
+  {x y z : 𝕜} (hx : x ∈ s) (hz : z ∈ s) (hxy : x < y) (hyz : y < z) :
+  f y * (z - x) ≤ (z - y) * f x + (y - x) * f z :=
+begin
+  have hxy' : 0 < y - x := by linarith,
+  have hyz' : 0 < z - y := by linarith,
+  have hxz' : 0 < z - x := by linarith,
+  rw ← le_div_iff hxz',
+  have ha : 0 ≤ (z - y) / (z - x) := by positivity,
+  have hb : 0 ≤ (y - x) / (z - x) := by positivity,
+  calc _ = _ : _
+  ... ≤ _ : hf.2 hx hz ha hb _
+  ... = _ : _,
+  { congr' 1,
+    field_simp [hxy'.ne', hyz'.ne', hxz'.ne'],
+    ring },
+  { field_simp [hxy'.ne', hyz'.ne', hxz'.ne'] },
+  { field_simp [hxy'.ne', hyz'.ne', hxz'.ne'] }
+end
+
+lemma convex_on.secant_mono_aux2 (hf : convex_on 𝕜 s f)
+  {x y z : 𝕜} (hx : x ∈ s) (hz : z ∈ s) (hxy : x < y) (hyz : y < z) :
+  (f y - f x) / (y - x) ≤ (f z - f x) / (z - x) :=
+begin
+  have hxy' : 0 < y - x := by linarith,
+  have hxz' : 0 < z - x := by linarith,
+  rw div_le_div_iff hxy' hxz',
+  linarith only [hf.secant_mono_aux1 hx hz hxy hyz],
+end
+
+lemma convex_on.secant_mono_aux3 (hf : convex_on 𝕜 s f)
+  {x y z : 𝕜} (hx : x ∈ s) (hz : z ∈ s) (hxy : x < y) (hyz : y < z) :
+  (f z - f x) / (z - x) ≤ (f z - f y) / (z - y) :=
+begin
+  have hyz' : 0 < z - y := by linarith,
+  have hxz' : 0 < z - x := by linarith,
+  rw div_le_div_iff hxz' hyz',
+  linarith only [hf.secant_mono_aux1 hx hz hxy hyz],
+end
+
+lemma convex_on.secant_mono (hf : convex_on 𝕜 s f)
+  {a x y : 𝕜} (ha : a ∈ s) (hx : x ∈ s) (hy : y ∈ s) (hxa : x ≠ a) (hya : y ≠ a) (hxy : x ≤ y) :
+  (f x - f a) / (x - a) ≤ (f y - f a) / (y - a) :=
+begin
+  rcases eq_or_lt_of_le hxy with rfl | hxy,
+  { simp },
+  cases lt_or_gt_of_ne hxa with hxa hxa,
+  { cases lt_or_gt_of_ne hya with hya hya,
+    { convert hf.secant_mono_aux3 hx ha hxy hya using 1;
+      rw ← neg_div_neg_eq;
+      field_simp, },
+    { convert hf.slope_mono_adjacent hx hy hxa hya using 1,
+      rw ← neg_div_neg_eq;
+      field_simp, } },
+  { exact hf.secant_mono_aux2 ha hy hxa hxy, },
+end
+
+lemma strict_convex_on.secant_mono (hf : strict_convex_on 𝕜 s f)
+  {a x y : 𝕜} (ha : a ∈ s) (hx : x ∈ s) (hy : y ∈ s) (hxa : x ≠ a) (hya : y ≠ a) (hxy : x < y) :
+  (f x - f a) / (x - a) < (f y - f a) / (y - a) :=
+sorry
+
+lemma strict_concave_on.secant_mono (hf : strict_concave_on 𝕜 s f)
+  {a x y : 𝕜} (ha : a ∈ s) (hx : x ∈ s) (hy : y ∈ s) (hxa : x ≠ a) (hya : y ≠ a) (hxy : x < y) :
+  (f y - f a) / (y - a) < (f x - f a) / (x - a) :=
+sorry
