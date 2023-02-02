@@ -5,8 +5,8 @@ Authors: Sébastien Gouëzel
 -/
 import data.complex.module
 import data.is_R_or_C.basic
-import topology.algebra.module.infinite_sum
-import topology.instances.real_vector_space
+--import topology.algebra.module.infinite_sum
+--import topology.instances.real_vector_space
 
 /-!
 # Normed space structure on `ℂ`.
@@ -250,14 +250,14 @@ instance : has_continuous_star ℂ := ⟨conj_lie.continuous⟩
 
 @[continuity] lemma continuous_conj : continuous (conj : ℂ → ℂ) := continuous_star
 
-/-- The only continuous ring homomorphisms from `ℂ` to `ℂ` are the identity and the complex
-conjugation. -/
-lemma ring_hom_eq_id_or_conj_of_continuous {f : ℂ →+* ℂ} (hf : continuous f) :
-  f = ring_hom.id ℂ ∨ f = conj :=
-begin
-  refine (real_alg_hom_eq_id_or_conj $ alg_hom.mk' f $ map_real_smul f hf).imp (λ h, _) (λ h, _),
-  all_goals { convert congr_arg alg_hom.to_ring_hom h, ext1, refl, },
-end
+-- /-- The only continuous ring homomorphisms from `ℂ` to `ℂ` are the identity and the complex
+-- conjugation. -/
+-- lemma ring_hom_eq_id_or_conj_of_continuous {f : ℂ →+* ℂ} (hf : continuous f) :
+--   f = ring_hom.id ℂ ∨ f = conj :=
+-- begin
+--   refine (real_alg_hom_eq_id_or_conj $ alg_hom.mk' f $ map_real_smul f hf).imp (λ h, _) (λ h, _),
+--   all_goals { convert congr_arg alg_hom.to_ring_hom h, ext1, refl, },
+-- end
 
 /-- Continuous linear equiv version of the conj function, from `ℂ` to `ℂ`. -/
 def conj_cle : ℂ ≃L[ℝ] ℂ := conj_lie
@@ -273,14 +273,14 @@ lemma isometry_of_real : isometry (coe : ℝ → ℂ) := of_real_li.isometry
 
 @[continuity] lemma continuous_of_real : continuous (coe : ℝ → ℂ) := of_real_li.continuous
 
-/-- The only continuous ring homomorphism from `ℝ` to `ℂ` is the identity. -/
-lemma ring_hom_eq_of_real_of_continuous {f : ℝ →+* ℂ} (h : continuous f) :
-  f = complex.of_real :=
-begin
-  convert congr_arg alg_hom.to_ring_hom
-    (subsingleton.elim (alg_hom.mk' f $ map_real_smul f h) $ algebra.of_id ℝ ℂ),
-  ext1, refl,
-end
+-- /-- The only continuous ring homomorphism from `ℝ` to `ℂ` is the identity. -/
+-- lemma ring_hom_eq_of_real_of_continuous {f : ℝ →+* ℂ} (h : continuous f) :
+--   f = complex.of_real :=
+-- begin
+--   convert congr_arg alg_hom.to_ring_hom
+--     (subsingleton.elim (alg_hom.mk' f $ map_real_smul f h) $ algebra.of_id ℝ ℂ),
+--   ext1, refl,
+-- end
 
 /-- Continuous linear map version of the canonical embedding of `ℝ` in `ℂ`. -/
 def of_real_clm : ℝ →L[ℝ] ℂ := of_real_li.to_continuous_linear_map
@@ -324,17 +324,17 @@ by rw [eq_re_of_real_le hz, is_R_or_C.norm_of_real, real.norm_of_nonneg (complex
 
 end complex_order
 
-lemma has_sum_iff {α} (f : α → ℂ) (c : ℂ) :
-  has_sum f c ↔ has_sum (λ x, (f x).re) c.re ∧ has_sum (λ x, (f x).im) c.im :=
-begin
-  -- For some reason, `continuous_linear_map.has_sum` is orders of magnitude faster than
-  -- `has_sum.mapL` here:
-  refine ⟨λ h, ⟨re_clm.has_sum h, im_clm.has_sum h⟩, _⟩,
-  rintro ⟨h₁, h₂⟩,
-  convert (h₁.prod_mk h₂).mapL equiv_real_prod_clm.symm.to_continuous_linear_map,
-  { ext x; refl },
-  { cases c, refl }
-end
+-- lemma has_sum_iff {α} (f : α → ℂ) (c : ℂ) :
+--   has_sum f c ↔ has_sum (λ x, (f x).re) c.re ∧ has_sum (λ x, (f x).im) c.im :=
+-- begin
+--   -- For some reason, `continuous_linear_map.has_sum` is orders of magnitude faster than
+--   -- `has_sum.mapL` here:
+--   refine ⟨λ h, ⟨re_clm.has_sum h, im_clm.has_sum h⟩, _⟩,
+--   rintro ⟨h₁, h₂⟩,
+--   convert (h₁.prod_mk h₂).mapL equiv_real_prod_clm.symm.to_continuous_linear_map,
+--   { ext x; refl },
+--   { cases c, refl }
+-- end
 
 end complex
 
