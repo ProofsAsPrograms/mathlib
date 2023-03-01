@@ -645,6 +645,25 @@ begin
     { rw not_mem_support_iff at hi, rwa mul_zero } },
 end
 
+-- example (F : Type) [field F] :
+
+theorem var_dvd_iff {p : mv_polynomial σ R} (i : σ) : X i ∣ p ↔
+  ∀ j : σ, j ≠ i → coeff (single j 1) p = 0 :=
+begin
+  split,
+  {rintros ⟨q, hpq⟩ j hj,
+    simp only [hpq],
+    rw mul_comm,
+    simp only [coeff_mul_X' (single j 1) i _],
+  simp only [hj, finsupp.mem_support_iff, single_eq_of_ne, ne.def, not_false_iff, eq_self_iff_true,
+    not_true, if_false],},
+  { intro hp,
+    sorry,--need something like f.div_X
+  }
+end
+-- ⟨λ ⟨g, hfg⟩, by rw [hfg, mul_comm, coeff_mul_X_zero],
+-- λ hf, ⟨f.div_X, by rw [mul_comm, ← add_zero (f.div_X * X), ← C_0, ← hf, div_X_mul_X_add]⟩⟩
+
 end coeff
 
 section constant_coeff
